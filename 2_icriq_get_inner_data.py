@@ -77,18 +77,39 @@ for letter in IDs:
             print (f'Not a singe company under letter: {letter} ...')
             sleep(randint(3,7))
             saveFile('Inserted.txt', 'at', letter + "\n")
+        elif "403 Forbidden" in response.text:
+            print(f"403 Forbidden\n")
+            sleep(randint(3, 7))
         else:
             # print(response.text)
-            saveFile('aaa.html', 'w', response.text)
+            # print("=====\n\n\n\n\n=========+")
+            saveFile("aaa.html", "w", response.text)
             content_tree = etree.HTML(response.text)
             number_of_results = content_tree.xpath("//*[@class='cell_5']/text()")[0]
-            print (f'Number of results: {number_of_results}')
-            count = 1
-            for comp_link in content_tree.xpath('//*[@title="Click to view the company profile"]/@href'):
-                print (comp_link)
-                saveFile('linqet3.txt', 'at', comp_link + ",  " + letter + "\n")
-                count += 1
-            saveFile('Inserted.txt', 'at', letter + "\n")
-            sleep(randint(3,7))
+            # print(f"Number of results: {number_of_results}")
+            for comp_link in content_tree.xpath(
+                '//*[@title="Click to view the company profile"]/@href'
+            ):
+                comp_link = "https://www.icriq.com" + comp_link
+                print(comp_link)
+                saveFile(
+                    "linqet3.txt",
+                    "at",
+                    comp_link + ",  " + letter + "\n",
+                )
+                ress = requests.request("POST", comp_link, headers=headers)
+                if ress:
+                    if "<B>NEQ</B>" in ress.text:
+                        print("*** Kontenti OKKK. ***")
+                        # print(ress.text)
+                        saveFile(
+                            "content.html",
+                            "at",
+                            ress.text + "\n<Visar>\n",
+                        )
+                        print(f"Rekorde te marrura: {count}")
+                        count += 1
+            saveFile("Inserted.txt", "at", letter + "\n")
+            sleep(randint(3, 7))
     except Exception as e:
-        print (e)
+        print(e)
